@@ -111,9 +111,7 @@ Quote source text directly in each field below. Paraphrase does not satisfy them
 
 **Run history**
 
-Only one run was executed. From eval-run.txt:
-
-agreement: 18/20 scored items (bar: 18/20: PASS)
+First full run: 16/20 (bar not met; category floor unmet — no match in policy). Added the "Contribution policy allows AI assistance" check and loosened "Scope is bounded" to exclude multi-cause bug reports from counting as umbrella issues. Second full run, saved as eval-run.txt: agreement: 18/20 scored items (bar: 18/20: PASS).
 
 **Issue analysis**
 
