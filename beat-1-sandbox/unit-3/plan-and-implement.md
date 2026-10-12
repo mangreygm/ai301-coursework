@@ -15,33 +15,31 @@ label is not graded.
 
 **GitHub username**
 
-[Your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comment upstream is identified by this name, and it is
-the only thing that ties it to you. Several students may plan the same
-house issue, so this is what keeps their comments off your score and
-yours off theirs.]
+mangreygm
 
 **Plan comment**
 
-[Link to the comment where you posted your plan on the issue. Use the comment's own
-permalink. **Then paste the text of that comment underneath the link** — the pasted text is
-what this field is graded on, so copy across what you actually posted.]
-
+https://github.com/codepath/pathreview-ai301-fa26-s3/issues/12#issuecomment-6116831265
 ---
 
 ## Your branch
 
 **Branch**
 
-[The name of the branch you built the change on, exactly as it appears in your fork. The
-naming shape is a type prefix, then the issue number, then a short description. **The issue
-number in the branch name must be the number of the issue you claimed** — a name carrying
-any other number does not satisfy this field.]
+fix/12-snapshot-hash-per-version
 
 **Evidence**
 
-[Your Unit 2 reproduction steps re-run against the built change: the before, then the
-after. Paste both, including the commands you ran and their output.]
+Before (Unit 2 repro, bug present):
+tests/unit/test_prompt_templates.py::TestPromptTemplates::test_template_snapshot_content_hash PASSED
+...
+375 passed, 53 xfailed in 67.92s (0:01:07)
+
+After (same edit, fix built):
+tests/unit/test_prompt_templates.py::TestPromptTemplates::test_template_snapshot_content_hash FAILED
+AssertionError: Content for (skills_feedback, v1) changed without a
+version bump — hash mismatch.
+assert 'f2147765625b...bb1fa8b0d7d3d' == 'f93103d82348...ecc6653e4ee5c'
 
 ## Eval iterations
 
@@ -50,28 +48,58 @@ fields.
 
 **Run history**
 
-[The agreement score of each run you did, in order. A single run is a complete answer if
-only one run occurred. **The last score in your list must match the agreement line in the
-`eval-run.txt` you committed** — that file is the record of your final run.]
+Only one run was executed. From eval-run.txt: agreement: 19/20 scored items (bar: 18/20: PASS)
 
 **Package analysis**
 
-[Pick one scored package (`pkg-01` through `pkg-20` — the four `calib-` packages are never
-scored). Name it by id, say what your rubric decided and what the gold label said, and
-explain why your rubric read it that way.]
+pkg-14 (category: clear-accept). Gold: accept. My rubric's verdict:
+reject, failing "Plan is executable by a stranger."
+
+The plan's Files section states: "exact functions to be pinned in the
+PR after tracing the query issuance with debug logs, which I have
+working." By the letter of my pass condition — naming specific
+functions so a stranger could start without asking a clarifying
+question — this fails, since the function names aren't pinned yet.
+But the author isn't vague: they already have working debug
+instrumentation that shows where the leak originates, so the real
+starting point (run the existing debug tooling, trace from there) is
+concrete even without the function name pre-filled. My check reads
+"names a function" literally, rather than treating "names a concrete,
+already-working method for finding the function" as equivalent. That
+gap is why my rubric rejects a plan the gold label accepts.
 
 **Check rationale**
 
-[Quote one check from the `rubric.md` you uploaded to `tools/plan-check/`, exactly as it reads now.
-Then say why it reads that way — what you revised to get there, or what you rejected in
-favour of it.]
+"Plan is executable by a stranger | The plan's Approach steps and
+Files section | The approach lists concrete, ordered steps naming
+specific files, functions, or mechanisms, such that someone who has
+not read the author's reasoning could start executing without asking
+a clarifying question. A step that names an outcome but not a
+mechanism or location ("fix the parsing issue") fails this check |
+required"
+
+I wrote this to stop a specific failure mode: a plan that describes
+*what* should happen ("fix the bug") without saying *where* or *how*,
+leaving a stranger unable to start without asking the author a
+question first. Requiring named files/functions/mechanisms, rather
+than accepting a general sense of the right area, makes the grader
+check the real thing — can execution actually begin — rather than
+how confident or detailed the writing sounds.
+
 
 **Trade-offs**
 
-[Every check gives something up. Any one of these is a complete answer: a package whose
-result it changes, a canary you re-ran with `--only`, a case you accept it will miss, or a
-stated reason nothing changed elsewhere. "Nothing changed, and here is how I know" earns
-the point in full when the reason follows.]
+This check's canary is pkg-14 itself: gold says accept, my rubric
+says reject, and the note names this exact check as the cause. I
+chose not to loosen the wording, since every other plan-check package
+(including three "unbuildable" category packages, 3/3 matched) relies
+on this check correctly rejecting plans that gesture at "fix it
+somewhere" without any concrete starting point. Loosening the
+condition to accept "I have a method but not the location yet" risks
+also accepting genuinely vague plans that falsely claim to have a
+method in hand. I accepted this one miss rather than risk that
+regression — pkg-14 is a known, understood limitation, not an
+oversight.
 
 ---
 
