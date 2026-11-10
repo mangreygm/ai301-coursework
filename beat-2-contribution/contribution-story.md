@@ -8,10 +8,9 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
-**Issue:** [GitHub issue link]
+**Student:** [Jeffrey Eromonsele]
+**GitHub Username:** [mangreygm]
+**Issue:** [https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/issues/167]
 **Pull Request:** [GitHub PR link, once opened]
 
 One repository, built across units 5 to 8, telling the whole story of your real
@@ -57,14 +56,21 @@ one in the week it belongs to.
 
 **Unit 5: [one line on the tool work]**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I wrote search-strategy.md (four gh search issues queries traced to my fit profile, plus ranking filters) on top of my existing issue-select rubric, and ran three rounds of scans. The first scan showed two real gaps: no tie-break (337 of ~373 results tied at 0 comments, so the scout graded whatever order the search happened to return) and a rubric check that passed a same-day, 0-star repo on "Repo in active use" purely because it had just tagged v1.0.0; I added a createdAt tie-break and a 30-day minimum repo-age floor. The second scan caught that createdAt wasn't actually in the queries' requested fields despite being sorted on, and that one inactive owner had eaten three of five grading slots, so I added the missing field and a one-per-owner cap. A later direct-grade run on candidates from the Issue Selection site exposed a bigger gap: "Not a duplicate" only checked for an *open* linked PR, so it passed an issue whose work was already merged (in a separate docs repo); I rewrote that check to catch merged PRs and cross-repo references too. I ultimately chose an issue my own rubric rejected (LiberatedPixelCup#167, failed only on "Repo in active use"), since a recent maintainer commit and an explicit maintainer reframing of the issue as docs work were stronger live signals than that check's narrow release/issue-volume conditions capture for a quiet, low-traffic project.
 
 **Unit 6: [one line on the tool work]**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I consolidated my voice guide into one canonical file read by repro-check,
+plan-check, and pr-precheck alike, wrote the Upstream section (claims,
+questions, pings), and wired the voice-guard as a Claude Code hook so it
+checks every outgoing GitHub comment automatically instead of only when I
+remember to invoke a skill. I also patched issue-scout's rubric per the
+Unit 6 scope patch, replacing "Scope is bounded" with "scope-feasible,"
+which stopped treating open edges as automatic rejections and turned them
+into a difficulty note instead — closer to how real issues actually look.
+I caught a recurrence of a Markdown formatting bug from Unit 5 (two table
+rows merged onto one line) while re-reading the patched rubric and fixed
+it again.
 
 **Unit 7: [one line on the tool work]**
 
@@ -80,16 +86,26 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+I chose this issue even though my own issue-scout rubric rejected it, on
+"Repo in active use" — the repo has no tagged releases and a low 90-day
+issue-opening rate, the two conditions that check looks for. But the
+signals that actually matter for whether a project is alive pointed the
+other way: a non-bot commit from the maintainer 13 days before my scan,
+and a MEMBER (Gaurav0) actively engaging with this exact issue, reframing
+it from a bug report into a documentation task he explicitly wants kept
+open for that purpose. A quiet, low-traffic project with an engaged
+maintainer is a better bet than my rubric's release-cadence and
+issue-volume proxies capture for a project this size.
+
+The task itself is well-bounded: some weapon animations use 128x128 or
+192x192 frames instead of the project's default 64x64, and that isn't
+documented anywhere exact — the original reporter found it only by chance
+in a Reddit thread, and the README mentions oversize frames in passing in
+a history section without giving sizes. My job is to find every
+non-standard size in the sheet_definitions JSON files and document them
+plainly. CONTRIBUTING.md is silent on AI assistance, so I disclosed my use
+of Claude Code in the claim comment anyway, following course practice
+rather than a repo requirement.
 
 **Toolkit**
 
