@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: Document weapon/tool oversize animation frame sizes
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -7,11 +7,11 @@ the repository is not read. **Keep every section header below under its exact na
 format criteria grade exactly that. Your course repo link is the whole submission: no tool
 files and no evidence uploads are part of Assignment 5.
 
-**Contribution Number:** [1]
-**Student:** [Jeffrey Eromonsele]
-**GitHub Username:** [mangreygm]
-**Issue:** [https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/issues/167]
-**Pull Request:** [GitHub PR link, once opened]
+**Contribution Number:** 1
+**Student:** Jeffrey Eromonsele
+**GitHub Username:** mangreygm
+**Issue:** https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/issues/167
+**Pull Request:** https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/pull/606
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -54,11 +54,11 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 5: Patched issue-scout's rubric, picked an issue it rejected**
 
 I wrote search-strategy.md (four gh search issues queries traced to my fit profile, plus ranking filters) on top of my existing issue-select rubric, and ran three rounds of scans. The first scan showed two real gaps: no tie-break (337 of ~373 results tied at 0 comments, so the scout graded whatever order the search happened to return) and a rubric check that passed a same-day, 0-star repo on "Repo in active use" purely because it had just tagged v1.0.0; I added a createdAt tie-break and a 30-day minimum repo-age floor. The second scan caught that createdAt wasn't actually in the queries' requested fields despite being sorted on, and that one inactive owner had eaten three of five grading slots, so I added the missing field and a one-per-owner cap. A later direct-grade run on candidates from the Issue Selection site exposed a bigger gap: "Not a duplicate" only checked for an *open* linked PR, so it passed an issue whose work was already merged (in a separate docs repo); I rewrote that check to catch merged PRs and cross-repo references too. I ultimately chose an issue my own rubric rejected (LiberatedPixelCup#167, failed only on "Repo in active use"), since a recent maintainer commit and an explicit maintainer reframing of the issue as docs work were stronger live signals than that check's narrow release/issue-volume conditions capture for a quiet, low-traffic project.
 
-**Unit 6: [one line on the tool work]**
+**Unit 6: Wired voice-guard as a hook; patched the scope check**
 
 I consolidated my voice guide into one canonical file read by repro-check,
 plan-check, and pr-precheck alike, wrote the Upstream section (claims,
@@ -72,15 +72,49 @@ I caught a recurrence of a Markdown formatting bug from Unit 5 (two table
 rows merged onto one line) while re-reading the patched rubric and fixed
 it again.
 
-**Unit 7: [one line on the tool work]**
+**Unit 7: Installed the ship-gate and wrote my first ship-manifest.md**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+The ship-gate ran my repo's real checks (lint, type-check, npm ci) and
+my pr-precheck against a live branch for the first time, and it
+rejected my branch twice before passing: once for an unfilled manifest
+template (leftover `<owner/repo>` brackets and a duplicated check row),
+and once for real problems my own pr-precheck tool caught — a stray
+`CLAUDE.local.md` that had been committed by accident despite being
+meant to stay local-only, and a failure count I'd miscounted in my PR
+description (3 vs. the actual 5 that npm reported). I also hit the same
+Windows `subprocess` PATH bug from earlier units, this time in the
+gate's own `claude -p` call, and fixed it the same way: resolving the
+binary with `shutil.which` before spawning it. Between the manifest and
+the pr-precheck pass, the gate caught real issues in my branch that I
+would not have caught just by eyeballing the diff myself.
 
-**Unit 8: [one line on the tool work]**
+**Unit 8: PR monitor**
 
-[2-4 sentences: the PR-monitor and your playbook. What it read, what it
-drafted, what you did with the draft.]
+- Installed the monitor, move-forms.md, and playbook-template.md to the
+  Windows canonical home (`~/.claude/pr-monitor/`).
+- `monitor.py --state` crashed on Windows with a UnicodeDecodeError,
+  then a TypeError — its `sh()` subprocess helper was missing
+  `encoding="utf-8", errors="replace"`, the same Windows subprocess bug
+  from check_voice.py and check_gate.py in earlier units. Fixed by
+  adding those arguments; `--state` then ran cleanly and showed PR
+  #606's live state.
+- Wrote the playbook's Staleness thresholds from real data: checked
+  CONTRIBUTING.md (states no explicit wait), then pulled merged PRs
+  from outside contributors via `gh pr list`. Had to filter out the
+  maintainer (Gaurav0) and dependabot to find real comparisons; the 5
+  that qualified ranged from ~7 hours to ~14 days open-to-merge, mostly
+  on the fast end. Set the nudge threshold at 3 days, past every fast
+  case found.
+- A full monitor run hit a second instance of the same bug class: the
+  `shutil.which` patch had been added to the `claude -p` subprocess
+  call but `import shutil` was never added to the file. Fixed by adding
+  the import.
+- The full run then worked end-to-end: it picked the review-response
+  form (the thread's latest item is a comment), correctly recognized
+  that comment was an automated Codex summary rather than human
+  feedback, and drafted a wait note instead of inventing a response —
+  applying the Staleness threshold with the real timestamps and naming
+  the next check date (2026-11-13).
 
 ---
 
@@ -109,11 +143,20 @@ rather than a repo requirement.
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout (my search strategy, my rubric), and how I used it
+- What it produced: a three-round scan that included LPC#167 among its
+  candidates; the final verdict on #167 was REJECT, failing only the
+  "Repo in active use" check (no tagged release, low 90-day
+  issue-opening rate) — every other check passed.
+- Difficulties: the active-use check's two proxies (release cadence,
+  issue volume) don't capture a small, quiet repo with an actively
+  engaged maintainer — exactly this project's situation. That's a
+  structural blind spot in the check's design, not a scan bug; nothing
+  here was a tool malfunction.
+- What changed: nothing to the tool itself at this point — I logged an
+  explicit override instead of loosening the check further, since
+  weakening "repo in active use" to admit this one issue would make it
+  worse at catching genuinely dead repos for every future scan.
 
 ---
 
@@ -121,26 +164,48 @@ rather than a repo requirement.
 
 **Problem Description**
 
-[In your own words, what is broken or missing?]
+Some weapon and tool animations in ULPC render at larger-than-default
+frame sizes (128px or 192px instead of the standard 64x64), but no
+contributor-facing documentation states which animations these are or
+what size each uses. The original reporter (Krim10000) only found this
+by chance in a Reddit thread, and the maintainer (Gaurav0) confirmed
+it's a real, unaddressed documentation gap rather than a duplicate.
 
 **Expected Behavior**
 
-[What should happen?]
+A contributor or tool user working with the sheet definitions should be
+able to look up the exact frame size for any oversize weapon/tool
+animation from the docs, without having to read the TypeScript source.
 
 **Current Behavior**
 
-[What actually happens?]
+The only place the real pixel values live is `sources/custom-animations.ts`.
+README.md's Terminology section mentions that ULPC has "weapons with
+oversize animation frames" but gives no sizes and no names. Nothing in
+CONTRIBUTING.md, ARCHITECTURE.md, or the contributor-facing
+sheet-definition skill doc states the values either.
 
 **Affected Components**
 
-[Which parts of the codebase are involved?]
+- `README.md` — where the missing documentation needs to be added (the
+  actual change in this PR).
+- `sources/custom-animations.ts` — the existing source of truth for
+  frame sizes; read but not modified.
+- `sheet_definitions/weapons/*.json` and `sheet_definitions/tools/*.json`
+  — the files that reference these oversize animations via
+  `"custom_animation"`; read but not modified.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code, used to grep every `custom_animation` reference
+  across `sheet_definitions/`, read `sources/custom-animations.ts`, and
+  check every existing doc file for prior documentation of the sizes
+- What it produced: confirmation that the frame-size data exists only
+  in code, with a full list of which animations use it and where
+- Difficulties: none — straightforward code-reading once I knew to look
+  past `sheet_definitions/` into `sources/`
+- What changed: nothing; this matched what the maintainer's comment on
+  the issue predicted
 
 ---
 
@@ -148,31 +213,67 @@ rather than a repo requirement.
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+Repo: LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator (own
+fork). `package.json` requires Node ^22.19.0 || ^24.0.0 || >=26.0.0.
+
+My machine: Windows 11, Node v22.19.0, npm 10.9.3. `npm ci` completed
+cleanly.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Searched `sheet_definitions/weapons/` for every file referencing
+   `"custom_animation"`. All five weapon subcategories (sword, polearm,
+   ranged/bow, blunt, magic) use it — e.g. `weapon_sword_katana.json`
+   sets `"custom_animation": "walk_128"` and `"slash_128"` on its
+   walk/slash layers.
+2. Traced those keys to `sources/custom-animations.ts`, which defines a
+   `frameSize` per key, and wrote a short script to pull every
+   non-64 `frameSize` out of that file programmatically rather than by
+   hand.
+3. Observed result: every weapon category ships at least one oversize
+   animation — `128` for `tool_rod`, `slash_128`, `backslash_128`,
+   `halfslash_128`, `walk_128`, `thrust_128`, `tool_axe`, `tool_hammer`;
+   `192` for `thrust_oversize`, `slash_oversize`,
+   `slash_reverse_oversize`, `whip_oversize`, `tool_whip` — and none of
+   these values appear anywhere in README.md, CONTRIBUTING.md,
+   ARCHITECTURE.md, or the contributor-facing sheet-definition skill
+   doc. The only place the real numbers live is this TypeScript file,
+   confirming the gap is real and exactly matches what Krim10000 and
+   Gaurav0 described.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/commit/b561eb1e90c851b135df1c7d95c466079abf537e
+- **Screenshots/logs:** 
+custom_animation usage counts across sheet_definitions/weapons/ and
+sheet_definitions/tools/:
+thrust_oversize x20 (192px)
+slash_oversize x18 (192px)
+walk_128 x12 (128px)
+slash_128 x8 (128px)
+slash_reverse_oversize x5 (192px)
+halfslash_128 x2 (128px)
+backslash_128 x2 (128px)
+- **My findings:** The frame-size information Krim10000 asked for
+  already exists in code (`sources/custom-animations.ts`), it's just
+  never surfaced anywhere a contributor or tool-user would read it.
+  README.md's Terminology section gestures at "oversize animation
+  frames" without giving pixel values. This is a pure documentation
+  gap, not a bug — there's nothing to fix in the generator itself, only
+  something to add in docs.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code, used to search the cloned repo for every
+  `custom_animation` reference, read `sources/custom-animations.ts`,
+  and check every doc file for existing size documentation
+- What it produced: a confirmed list of every non-default frame size
+  and where each is used, and confirmation that no existing doc states
+  them
+- Difficulties: none — this was a straightforward code-reading task
+  once I knew to look past `sheet_definitions/` into `sources/`
+- What changed: none; this matched what the maintainer's comment
+  predicted
 
 ---
 
@@ -180,93 +281,180 @@ and how you solved them, or that none came up.]
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+The cause isn't a bug — it's a documentation gap. The frame-size data
+Krim10000 needed already exists in code: `sources/custom-animations.ts`
+defines a `frameSize` per custom animation key (128px for `tool_rod`,
+`slash_128`, `backslash_128`, `halfslash_128`, `walk_128`, `thrust_128`,
+`tool_axe`, `tool_hammer`; 192px for `thrust_oversize`, `slash_oversize`,
+`slash_reverse_oversize`, `whip_oversize`, `tool_whip`), and every weapon
+category's `sheet_definitions/weapons/*.json` references one of these
+keys via `"custom_animation"`. But no contributor-facing doc states the
+exact sizes — README.md's Terminology section only says ULPC added
+"weapons with oversize animation frames," with no pixel values.
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+Add a table to README.md's Terminology section listing every custom
+animation name and its frame size, sourced directly from
+`sources/custom-animations.ts`, so a tool user cutting sheets at the
+default 64x64 can see up front which animations need 128 or 192
+instead. I am deliberately NOT changing any code — `custom-animations.ts`
+is correct and doesn't need touching, and I'm not modifying any
+`sheet_definitions/` JSON, since those already reference the right
+keys.
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
-
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+1. Add a short table to README.md's Terminology section (near the
+   existing "oversize animation frames" sentence) listing each
+   non-default custom animation name and its frame size in px.
+2. No tests to add — this is a documentation-only change; `npm run
+   test:node` and `npm run lint`/`type-check` confirm nothing broke.
+3. Keep the extraction script (`scripts/debug/list-oversize-animations.ts`)
+   out of the PR diff, or decide whether to keep it as a small dev
+   utility — default is to drop it since nothing in CONTRIBUTING.md
+   asks for one; it was reproduction scaffolding, not part of the fix.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the ship-gate (Unit 7)
+- What it produced: a manifest-driven pre-flight that ran the repo's
+  own checks (npm ci, lint, type-check) then my pr-precheck against
+  the real branch, diff, plan, and test evidence, and blocked the PR
+  three separate times before it would pass
+- Difficulties: my first manifest still had the `<owner/repo>`
+  placeholder brackets and a duplicate "Node unit tests" row in both
+  the must-pass and excluded tables; `pr_draft.md` and `test_evidence.md`
+  both got created with hidden `.txt` extensions on Windows the first
+  time; `claude -p` wasn't resolvable from the gate's `subprocess.run`
+  call until I patched it with `shutil.which("claude")`, the same
+  Windows PATH issue from earlier units; and my own pr-precheck caught
+  a real arithmetic slip (I'd said "3 failures" when npm's own output
+  said 5) and caught that `CLAUDE.local.md`, meant to stay local-only,
+  had been swept into a commit
+- What changed: fixed the manifest's placeholder and duplicate row,
+  renamed the hidden-extension files, patched `check_gate.py` and
+  `check_voice.py` with `shutil.which`, corrected the failure count
+  everywhere it appeared, removed `CLAUDE.local.md` from tracking and
+  squashed the branch down to one clean commit before pushing
 
 ---
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+**Diff check:** `git diff --stat` against `master` shows exactly one
+file touched — `README.md`, a 21-line addition under the Terminology
+section (the new "Oversize animation frame sizes" table). No other
+file in the branch is changed.
+
+**Repo's own checks, run on the branch:**
+- `npm run lint` — clean.
+- `npm run type-check` — clean.
+- `npm run test:node` — 5 failures (4 Windows path-separator/EPERM-symlink
+  failures in `link-agent-skills_spec.ts`, 1 openssl-dependent TLS
+  failure in `cls-profile_spec.ts`). Re-ran the same command against a
+  clean checkout of `master` with no branch changes: same 5 failures,
+  same files, same count. This confirms none of them are caused by this
+  change — they're pre-existing environment issues unrelated to a
+  README edit.
+
+Together these show the change is exactly what it claims to be (one
+doc addition, nothing else touched) and that it introduces no new
+failures anywhere in the repo's own test suite.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the repo's own npm scripts (lint, type-check, test:node), run
+  directly, plus `git diff --stat` for the diff check
+- What it produced: a clean lint/type-check result and a confirmed,
+  pre-existing (not caused by this PR) 5-failure baseline for test:node
+- Difficulties: initially miscounted the test:node failures as 4 instead
+  of 5 when writing this up the first time; caught by my own
+  pr-precheck tool flagging the inconsistency against npm's own output
+- What changed: corrected the failure count everywhere it appears in
+  this story and in the PR description
 
 ---
 
 ## Implementation Notes
 
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
+**2026-11-09**
 
-**[Date]**
+Built `test_evidence.md` and `pr_draft.md`, then ran the ship-gate for
+the first time. It rejected the branch twice before passing: once for
+a templated `ship-manifest.md` (leftover `<owner/repo>` brackets, a
+duplicate check row), and once for real problems its `pr-precheck`
+caught — a stray `CLAUDE.local.md` committed by accident, and a
+test-failure count I'd gotten wrong (said 4, npm's own output said 5).
+Fixed both, squashed the branch to one clean commit with
+`git reset --soft master`, and force-pushed with `--force-with-lease`
+since it had already been pushed once before the squash.
 
-[Entry]
+**2026-11-10**
 
-**[Date]**
-
-[Entry]
+Opened PR #606. Installed the Unit 8 PR monitor and hit the same
+Windows subprocess bug class twice more: `--state` crashed on a missing
+`encoding="utf-8"` in the `sh()` helper, then a full run crashed on a
+missing `import shutil` even though the `shutil.which` call itself had
+already been patched in. Fixed both, wrote the playbook's Staleness
+thresholds from real merged-PR data (filtering out the maintainer and
+dependabot), and ran the monitor end-to-end — it correctly told the
+two bot comments on the thread apart from real human feedback and
+drafted a wait note instead of inventing a response.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the ship-gate and the PR monitor (Units 7-8)
+- What it produced: a working log of every real stop each tool made
+  and what each one caught
+- Difficulties: the same Windows subprocess bug (missing PATH
+  resolution, missing encoding) recurred across three separate scripts
+  before I started checking for it proactively
+- What changed: patched all three scripts the same way once the
+  pattern was clear, instead of treating each as a one-off
 
 ---
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/pull/606
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** Adds an "Oversize animation frame sizes" subsection to README.md's
+Terminology section, listing every weapon/tool custom animation that
+uses a non-default frame size (128px or 192px instead of the standard
+64x64), with the exact pixel value for each, sourced from
+`sources/custom-animations.ts`. No code changes. Fixes #167.
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
-- [Date]: [how you addressed it]
+2026-11-10: none yet — the only activity so far is an automated Netlify
+deploy-preview notice and a Codex bot review that found nothing to flag.
+No human has reviewed it.
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Awaiting Review
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the ship-gate (Unit 7)
+- What it produced: a manifest-driven pre-flight that ran the repo's
+  own checks (npm ci, lint, type-check) then my pr-precheck against
+  the real branch, diff, plan, and test evidence, and blocked the PR
+  three separate times before it would pass
+- Difficulties: my first manifest still had the `<owner/repo>`
+  placeholder brackets and a duplicate "Node unit tests" row in both
+  the must-pass and excluded tables; `pr_draft.md` and `test_evidence.md`
+  both got created with hidden `.txt` extensions on Windows the first
+  time; `claude -p` wasn't resolvable from the gate's `subprocess.run`
+  call until I patched it with `shutil.which("claude")`, the same
+  Windows PATH issue from earlier units; and my own pr-precheck caught
+  a real arithmetic slip (I'd said "3 failures" when npm's own output
+  said 5) and caught that `CLAUDE.local.md`, meant to stay local-only,
+  had been swept into a commit
+- What changed: fixed the manifest's placeholder and duplicate row,
+  renamed the hidden-extension files, patched `check_gate.py` and
+  `check_voice.py` with `shutil.which`, corrected the failure count
+  everywhere it appeared, removed `CLAUDE.local.md` from tracking and
+  squashed the branch down to one clean commit before pushing
 
 ---
 
@@ -274,25 +462,43 @@ opened.]
 
 **Technical Skills Gained**
 
-[What you learned technically, named concretely.]
+- Diagnosing Windows-specific Python `subprocess` failures (PATH
+  resolution via `shutil.which`, encoding crashes from `cp1252` vs
+  `utf-8`) and recognizing the same bug class on sight by the third
+  occurrence.
+- Reading GitHub PR/CI state through `gh` (checks, review decision,
+  comment threads) well enough to tell automated bot activity apart
+  from real maintainer feedback.
+- Squashing a branch's history with `git reset --soft` plus a clean
+  recommit, and safely force-pushing with `--force-with-lease` after a
+  prior push.
+- Writing grading rules (a rubric check, a staleness threshold) from
+  real project data instead of guessing a plausible-sounding number.
 
 **Challenges Overcome**
 
-[What was hard and how you solved it; point at the real events, the
-Toolkit blocks above are full of them.]
+- My own `pr-precheck` tool caught two real mistakes in my branch
+  before I shipped it: an accidentally-committed local-only file, and
+  an arithmetic error in my own PR description. Both were genuine
+  gaps, not the tool being pedantic, and I'd have shipped both if the
+  gate hadn't stopped me.
+- Chose an issue my own issue-scout rubric rejected, and had to make a
+  real, logged case for why the override was correct rather than just
+  picking a more convenient issue.
 
 **What I'd Do Differently Next Time**
 
-[Reflection on your process.]
+I'd check every staff-provided script for the Windows subprocess bug up
+front, across all three (`check_voice.py`, `check_gate.py`,
+`monitor.py`), instead of discovering it fresh in each one. I'd also
+add `.git/info/exclude` entries for local-only working files (like
+`CLAUDE.local.md`) the moment they're created, rather than after one
+gets swept into a commit by accident.
 
 ---
 
 ## Resources Used
 
-[What actually helped, not a reading list. List things this story
-already shows you using: the doc you followed to set the environment
-up, the thread that explained the bug, the person who answered you.
-One real entry beats ten plausible ones.]
-
-- [Link to documentation that helped]
-- [Discussion, issue, or post that helped]
+- [Issue #167](https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/issues/167) — the maintainer's own reframing comment is what told me this was real, wanted documentation work, not a rejected bug report.
+- [CONTRIBUTING.md](https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/blob/master/CONTRIBUTING.md) — confirmed the repo's real CI checks and said nothing about AI-assistance disclosure or PR wait times, which shaped both the ship-manifest and the playbook.
+- `sources/custom-animations.ts` and `AGENTS.md`/the sheet-definition skill doc in the repo itself — confirmed this file is the actual source of truth for frame sizes and that no contributor doc restates it.
